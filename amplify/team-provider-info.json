@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-emotioncastfrontend-dev-6859f-authRole",
+      "UnauthRoleArn": "arn:aws:iam::905936428585:role/amplify-emotioncastfrontend-dev-6859f-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::905936428585:role/amplify-emotioncastfrontend-dev-6859f-authRole",
+      "Region": "eu-north-1",
+      "DeploymentBucketName": "amplify-emotioncastfrontend-dev-6859f-deployment",
+      "UnauthRoleName": "amplify-emotioncastfrontend-dev-6859f-unauthRole",
+      "StackName": "amplify-emotioncastfrontend-dev-6859f",
+      "StackId": "arn:aws:cloudformation:eu-north-1:905936428585:stack/amplify-emotioncastfrontend-dev-6859f/c3b30980-52c9-11f0-9f27-0e5d1d89d5f1",
+      "AmplifyAppId": "d2piig34gm9g4p"
+    },
+    "categories": {
+      "auth": {
+        "emotioncastfrontendd44ad9dd": {}
+      }
+    }
+  }
+}
