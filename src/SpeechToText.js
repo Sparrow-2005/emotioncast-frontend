@@ -152,11 +152,12 @@
 
 // export default SpeechToText;
 import React, { useState, useEffect, useRef } from 'react';
+import { fetchAuthSession } from 'aws-amplify/auth';
 
 const SpeechToText = () => {
   const [listening, setListening] = useState(false);
-  const [transcript, setTranscript] = useState("");
-  const [sentiment, setSentiment] = useState("");
+  const [transcript, setTranscript] = useState('');
+  const [sentiment, setSentiment] = useState('');
   const recognitionRef = useRef(null);
 
   useEffect(() => {
@@ -168,8 +169,8 @@ const SpeechToText = () => {
 
     const recognition = new SpeechRecognition();
     recognition.lang = 'en-US';
-    recognition.interimResults = false;  // Only final results
-    recognition.continuous = true;       // 👈 CONTINUOUS so it doesn't auto-stop on silence
+    recognition.interimResults = false;
+    recognition.continuous = true;
     recognition.maxAlternatives = 1;
 
     recognition.onstart = () => setListening(true);
@@ -182,7 +183,7 @@ const SpeechToText = () => {
     recognition.onresult = (event) => {
       const resultIndex = event.resultIndex;
       const finalTranscript = event.results[resultIndex][0].transcript.trim();
-      setTranscript(prev => prev ? prev + " " + finalTranscript : finalTranscript);
+      setTranscript((prev) => (prev ? `${prev} ${finalTranscript}` : finalTranscript));
       handleSendForAnalysis(finalTranscript);
     };
 
@@ -191,12 +192,23 @@ const SpeechToText = () => {
 
   const handleSendForAnalysis = async (text) => {
     try {
+      const session = await fetchAuthSession();
+      const token = session.tokens?.idToken?.toString();
+
+      if (!token) {
+        throw new Error('User is not authenticated; token missing.');
+      }
+
       const response = await fetch(
         'https://i9et39gwnj.execute-api.eu-north-1.amazonaws.com/sentiment',
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, mode: 'speech-to-text', }),  // include mode
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+
+          },
+          body: JSON.stringify({ text, mode: 'speech-to-text' }),
         }
       );
 
@@ -207,7 +219,7 @@ const SpeechToText = () => {
       const data = await response.json();
       setSentiment(data.sentiment);
     } catch (error) {
-      console.error("Sentiment analysis error:", error);
+      console.error('Sentiment analysis error:', error);
     }
   };
 
@@ -216,60 +228,66 @@ const SpeechToText = () => {
     if (listening) {
       recognitionRef.current.stop();
     } else {
-      setTranscript("");
-      setSentiment("");
+      setTranscript('');
+      setSentiment('');
       recognitionRef.current.start();
     }
   };
 
   return (
-    <div style={{
-      width: '100%',
-      backgroundColor: '#001f3f',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      padding: '5px', // reduce outside padding
-      boxSizing: 'border-box',
-      fontFamily: '"Inter", sans-serif',
-    }}>
-      <div style={{
-        maxWidth: '600px',
+    <div
+      style={{
         width: '100%',
-        backgroundColor: '#ffffff',
-        borderRadius: '20px',
-        boxShadow: '0 12px 35px rgba(0,0,0,0.4)',
-        padding: '25px',         // reduce internal box padding
-        animation: 'fadeIn 0.6s ease-in-out',
-        margin: '10px auto',     // tighter margin around box
-      }}>
-        <h2 style={{
-          textAlign: 'center',
-          color: '#001f3f',
-          marginBottom: '20px',  // reduce title spacing
-          fontSize: '2rem'
-        }}>
+        backgroundColor: '#001f3f',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '5px',
+        boxSizing: 'border-box',
+        fontFamily: '"Inter", sans-serif',
+      }}
+    >
+      <div
+        style={{
+          maxWidth: '600px',
+          width: '100%',
+          backgroundColor: '#ffffff',
+          borderRadius: '20px',
+          boxShadow: '0 12px 35px rgba(0,0,0,0.4)',
+          padding: '25px',
+          animation: 'fadeIn 0.6s ease-in-out',
+          margin: '10px auto',
+        }}
+      >
+        <h2
+          style={{
+            textAlign: 'center',
+            color: '#001f3f',
+            marginBottom: '20px',
+            fontSize: '2rem',
+          }}
+        >
           🎙️ Speech-to-Text with Emotion
         </h2>
-  
+
         <button
           onClick={handleToggleListening}
           style={{
             width: '100%',
-            padding: '14px',     // slightly smaller button padding
+            padding: '14px',
             fontSize: '16px',
             background: listening ? '#ff4136' : '#001f3f',
             color: '#ffffff',
             border: 'none',
             borderRadius: '12px',
             cursor: 'pointer',
-            marginBottom: '20px', // reduce space below button
+            marginBottom: '20px',
             transition: 'background-color 0.3s ease',
           }}
         >
           {listening ? 'Stop Listening' : 'Start Listening'}
         </button>
-  
+
         <textarea
           rows="6"
           value={transcript}
@@ -286,25 +304,26 @@ const SpeechToText = () => {
             backgroundColor: '#f5f9ff',
             boxSizing: 'border-box',
             outline: 'none',
-            marginBottom: '15px', // tighter spacing
+            marginBottom: '15px',
           }}
         />
-  
+
         {sentiment && (
-          <div style={{
-            backgroundColor: '#001f3f',
-            color: '#f1f6fb',
-            padding: '12px',
-            borderRadius: '12px',
-            textAlign: 'center',
-          }}>
+          <div
+            style={{
+              backgroundColor: '#001f3f',
+              color: '#f1f6fb',
+              padding: '12px',
+              borderRadius: '12px',
+              textAlign: 'center',
+            }}
+          >
             Detected Emotion: <strong>{sentiment}</strong>
           </div>
         )}
       </div>
     </div>
   );
-  
 };
 
 export default SpeechToText;

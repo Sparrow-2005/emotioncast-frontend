@@ -17,6 +17,24 @@ const Footer = () => {
   const [currentMsg, setCurrentMsg] = useState("");
   const messageRef = useRef(null);
 
+  // useEffect(() => {
+  //   const updateMessage = () => {
+  //     const msg = messages[Math.floor(Math.random() * messages.length)];
+  //     setCurrentMsg(msg);
+  
+  //     const el = messageRef.current;
+  //     if (!el) return;
+  
+  //     el.classList.remove("animate-typing");
+  //     void el.offsetWidth; // Trigger reflow
+  //     el.classList.add("animate-typing");
+  //   };
+  
+  //   const interval = setInterval(updateMessage, 4000);
+  //   updateMessage(); // Initial message
+  
+  //   return () => clearInterval(interval);
+  // }, [messages]); // ✅ Include messages as dependency
   useEffect(() => {
     const updateMessage = () => {
       const msg = messages[Math.floor(Math.random() * messages.length)];
@@ -34,8 +52,7 @@ const Footer = () => {
     updateMessage(); // Initial message
   
     return () => clearInterval(interval);
-  }, [messages]); // ✅ Include messages as dependency
-  
+  }, []);
 
   return (
     <footer

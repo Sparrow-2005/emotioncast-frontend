@@ -1,39 +1,72 @@
 import React, { useEffect, useState } from "react";
+import { getCurrentUser, fetchAuthSession } from '@aws-amplify/auth';
+
 
 const History = () => {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // useEffect(() => {
+  //   const fetchHistory = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         "https://i9et39gwnj.execute-api.eu-north-1.amazonaws.com/history",
+  //         {
+  //           method: "GET",
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //           },
+  //         }
+  //       );
+
+  //       if (!response.ok) {
+  //         throw new Error(`Fetch failed: ${response.status} ${response.statusText}`);
+  //       }
+
+  //       const data = await response.json();
+  //       console.log("History API response:", data);
+  //       setHistory(data.items || []);
+  //     } catch (err) {
+  //       console.error("Fetch history error:", err);
+  //       setError("Failed to load history. Please try again later.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchHistory();
+  // }, []);
   useEffect(() => {
-    const fetchHistory = async () => {
+    const fetchUserAndHistory = async () => {
       try {
-        const response = await fetch(
-          "https://i9et39gwnj.execute-api.eu-north-1.amazonaws.com/history",
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error(`Fetch failed: ${response.status} ${response.statusText}`);
-        }
-
+        const user = await getCurrentUser();  // fetch current user info
+        console.log("Logged-in user ID:", user.username);
+    
+        const session = await fetchAuthSession();  // fetch tokens
+        const token = session.tokens?.idToken?.toString();
+    
+        console.log("Fetched JWT token:", token);
+    
+        const response = await fetch("https://i9et39gwnj.execute-api.eu-north-1.amazonaws.com/history", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,  // ✅ use token here
+          },
+        });
+    
         const data = await response.json();
-        console.log("History API response:", data);
         setHistory(data.items || []);
       } catch (err) {
-        console.error("Fetch history error:", err);
-        setError("Failed to load history. Please try again later.");
+        console.error("Error fetching user or history:", err);
+        setError("Failed to load history.");
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchHistory();
+    }
+  
+    fetchUserAndHistory();
   }, []);
 
   return (
@@ -48,7 +81,7 @@ const History = () => {
     >
       <div
         style={{
-          maxWidth: "800px",
+          maxWidth: "100vw",
           margin: "0 auto",
           backgroundColor: "#ffffff",
           borderRadius: "16px",

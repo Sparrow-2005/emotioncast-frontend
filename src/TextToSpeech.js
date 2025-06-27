@@ -1,50 +1,68 @@
 import React, { useState, useEffect } from 'react';
-
+import { getCurrentUser } from '@aws-amplify/auth';
+import { fetchAuthSession } from '@aws-amplify/auth';
 const TextToSpeech = () => {
   const [text, setText] = useState("");
   const [sentiment, setSentiment] = useState("");
   const [audioUrl, setAudioUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
-    if (!text.trim()) {
-      alert("Please enter some text");
-      return;
-    }
+  
 
-    setLoading(true);
+const handleSubmit = async () => {
+  if (!text.trim()) {
+    alert("Please enter some text");
+    return;
+  }
 
-    try {
-      const response = await fetch(
-        'https://i9et39gwnj.execute-api.eu-north-1.amazonaws.com/sentiment',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text }),
-        }
-      );
+  setLoading(true);
 
-      if (!response.ok) throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+  try {
+    // ✅ Get the current session to get JWT
+    const session = await fetchAuthSession();
+    const token = session.tokens?.idToken?.toString();
 
-      const responseData = await response.json();
-      setSentiment(responseData.sentiment);
+    if (!token) throw new Error("Could not retrieve ID token. Are you signed in?");
 
-      if (responseData.audio) {
-        const audioBlob = new Blob(
-          [Uint8Array.from(atob(responseData.audio), c => c.charCodeAt(0))],
-          { type: 'audio/wav' }
-        );
-        const newAudioUrl = URL.createObjectURL(audioBlob);
-        if (audioUrl) URL.revokeObjectURL(audioUrl);
-        setAudioUrl(newAudioUrl);
+    console.log("Sending API request with token:", token.slice(0, 20) + "...");
+
+    const response = await fetch(
+      'https://i9et39gwnj.execute-api.eu-north-1.amazonaws.com/sentiment',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,  // ✅ Send JWT for authentication
+        },
+        body: JSON.stringify({
+          text,
+          mode: "text-to-speech",  // ✅ only text & mode, no userId
+        }),
       }
-    } catch (error) {
-      console.error("API call error:", error);
-      alert(`Error: ${error.message}`);
-    } finally {
-      setLoading(false);
+    );
+
+    if (!response.ok) throw new Error(`API call failed: ${response.status} ${response.statusText}`);
+
+    const responseData = await response.json();
+    setSentiment(responseData.sentiment);
+
+    if (responseData.audio) {
+      const audioBlob = new Blob(
+        [Uint8Array.from(atob(responseData.audio), c => c.charCodeAt(0))],
+        { type: 'audio/mp3' }
+      );
+      const newAudioUrl = URL.createObjectURL(audioBlob);
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+      setAudioUrl(newAudioUrl);
     }
-  };
+  } catch (error) {
+    console.error("API call error:", error);
+    alert(`Error: ${error.message}`);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     return () => { if (audioUrl) URL.revokeObjectURL(audioUrl); };
