@@ -22,6 +22,7 @@ const handleSubmit = async () => {
     const session = await fetchAuthSession();
     const token = session.tokens?.idToken?.toString();
 
+
     if (!token) throw new Error("Could not retrieve ID token. Are you signed in?");
 
     console.log("Sending API request with token:", token.slice(0, 20) + "...");
