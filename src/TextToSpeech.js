@@ -21,7 +21,7 @@ const handleSubmit = async () => {
     // ✅ Get the current session to get JWT
     const session = await fetchAuthSession();
     const token = session.tokens?.idToken?.toString();
-
+    
 
     if (!token) throw new Error("Could not retrieve ID token. Are you signed in?");
 
@@ -41,6 +41,7 @@ const handleSubmit = async () => {
         }),
       }
     );
+    
 
     if (!response.ok) throw new Error(`API call failed: ${response.status} ${response.statusText}`);
 

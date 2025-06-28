@@ -153,7 +153,6 @@
 // export default SpeechToText;
 import React, { useState, useEffect, useRef } from 'react';
 import { fetchAuthSession } from 'aws-amplify/auth';
-
 const SpeechToText = () => {
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState('');
@@ -211,6 +210,8 @@ const SpeechToText = () => {
           body: JSON.stringify({ text, mode: 'speech-to-text' }),
         }
       );
+      
+      
 
       if (!response.ok) {
         throw new Error(`API call failed: ${response.status} ${response.statusText}`);
