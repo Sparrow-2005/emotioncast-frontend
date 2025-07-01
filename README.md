@@ -1,70 +1,46 @@
-# Getting Started with Create React App
+# 🎙️ EmotionCast – Emotion-Aware Text-to-Speech & Speech-to-Text API
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+EmotionCast is a full-stack AWS-powered application that converts text to emotionally expressive audio, and vice versa. It uses AI-driven sentiment analysis to generate speech matching the emotion of the input text, or transcribes audio back to text with sentiment detection. This project showcases industry-level authentication, secure API deployment, and modern frontend integration.
 
-## Available Scripts
+## 🌟 Features
 
-In the project directory, you can run:
+✅ **Text ➔ Emotion ➔ Audio**
+- Analyze input text with AWS Comprehend to detect sentiment
+- Generate speech with Amazon Polly using SSML to express the detected emotion
 
-### `npm start`
+✅ **Speech ➔ Text ➔ Emotion**
+- Upload recorded voice
+- Transcribe speech to text with Amazon Transcribe
+- Detect sentiment of spoken words
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+✅ **Secure APIs**
+- Lambda functions deployed behind API Gateway
+- JWT authentication ready via AWS Cognito
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+✅ **Frontend Integration**
+- React-based interface to submit text, receive audio, and play it back
+- Handles real-time audio generation with detected sentiment display
 
-### `npm test`
+✅ **Deployment**
+- Backend fully serverless on AWS (Lambda + API Gateway)
+- Frontend ready to deploy with AWS Amplify, S3 + CloudFront, Vercel, or Netlify
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## 🔧 Tech Stack
 
-### `npm run build`
+- **AWS Lambda**: Serverless compute for text/speech processing
+- **Amazon Polly**: Emotion-aware speech synthesis (TTS)
+- **Amazon Comprehend**: Sentiment analysis
+- **Amazon Transcribe** (planned): Speech recognition (STT)
+- **AWS API Gateway**: Expose Lambda functions securely over HTTPS
+- **AWS Cognito** (optional): User authentication with JWT
+- **React.js**: Frontend application
+- **S3**: Storage for audio files if needed
+- **Tailwind CSS**: UI styling
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🚀 How It Works
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1️⃣ **Text-to-Speech Flow**: 
+ User ➔ React Frontend ➔ POST /sentiment ➔ Lambda ➔ Comprehend ➔ Polly ➔ Return audio
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+2️⃣ **Speech-to-Text Flow**: 
+ User ➔ Upload audio ➔ S3 ➔ Lambda ➔ Transcribe ➔ Comprehend ➔ Return text + sentiment
